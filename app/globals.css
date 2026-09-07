@@ -11,6 +11,11 @@
 @media(max-width:950px){.nav-inner nav button{display:none}.nav-inner nav{margin-left:auto}.hero-copy{max-width:65%}h1{font-size:33px}.hero-art{opacity:.75;left:53%}.hero-copy>p{font-size:14px}.hot-tags{gap:5px}.hero-inner{padding-top:40px}}
 @media(max-width:640px){.wrap{width:90%}.top-inner{height:33px;font-size:10px}.top-actions{gap:12px}.top-actions>span{display:none}.top-actions button{font-size:12px}.nav-inner{height:70px;gap:10px}.brand{gap:5px}.brand-mark{width:35px;height:40px;background-size:168px 112px;background-position:-65px -19px}.brand-cn{font-size:25px;letter-spacing:2px}.brand-en{font-size:18px}.nav-inner nav{font-size:13px;gap:13px}.nav-inner nav a{padding:21px 0}.nav-end{display:none}.hero{min-height:0}.hero-art{inset:0 0 auto 48%;height:250px;background-size:auto 650px;background-position:right -77px;opacity:.4;mask-image:linear-gradient(to right,transparent,#000 80%)}.hero-inner{padding:32px 0 33px}.hero-copy{max-width:100%;width:100%}h1{font-size:30px;line-height:1.45;letter-spacing:0;margin-bottom:18px;white-space:normal}.hero-copy>p{font-size:13px;position:relative}.search-box{height:48px;margin-top:24px;position:relative}.hot-tags{margin:14px 0 22px;gap:8px}.hero-actions{gap:14px}.primary,.secondary{padding:10px 23px}.opportunities{padding-top:25px}.section-heading h2{font-size:21px}.section-heading p{font-size:12px}.all-projects{font-size:12px;padding:8px;gap:5px}.job-grid{grid-template-columns:1fr;gap:14px}.job-card{padding:19px}.job-description{font-size:14px}.source-bottom{font-size:12px}.footer{flex-wrap:wrap;gap:8px}.footer>span:last-child{display:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.job-card{transition:none}}
+.hero-art{left:55%;background-size:180% auto;background-position:right -6vw}
+@media(min-width:1600px){.hero-art{background-size:1536px auto;background-position:right -80px}}
+@media(max-width:1250px){.hero-art{left:55%;background-size:auto 850px;background-position:right -70px}}
+@media(max-width:950px){.hero-art{left:58%}}
+@media(max-width:640px){.hero-art{left:61%;background-size:auto 620px;background-position:right -65px;opacity:.35}}
 
 
 
