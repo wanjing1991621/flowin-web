@@ -21,3 +21,22 @@
 
 
 .hero-art{max-height:min(440px,28.7vw)}
+.hero-art{
+  inset:0 0 0 50%;
+  max-height:none;
+  background-image:url('/brand.png');
+  background-size:1536px auto;
+  background-position:center -140px;
+  background-repeat:no-repeat;
+  mask-image:none;
+  opacity:1;
+}
+@media(max-width:1250px){
+  .hero-art{left:52%;background-size:1300px auto;background-position:center -112px}
+}
+@media(max-width:950px){
+  .hero-art{left:57%;background-size:1080px auto;background-position:center -92px;opacity:.82}
+}
+@media(max-width:640px){
+  .hero-art{left:61%;height:250px;background-size:760px auto;background-position:center -63px;opacity:.68}
+}
