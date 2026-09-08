@@ -1,4 +1,6 @@
-export const jobs=[
+type Job={id:string;title:string;publisher:string;symbol:string;kind:string;period:string;salary:string;summary:string;tags:string[];url:string;note:string;location?:string;sourceLabel?:string;badge?:string};
+export const jobs:Job[]=[
+{id:'boss-4f010dabfd5185a90nN43N-5GVZQ',title:'BOSS 直聘职位',publisher:'BOSS 直聘',symbol:'B',kind:'待确认',period:'要求见原页',salary:'薪资见原页',summary:'查看职位介绍、公司信息与申请要求，前往 BOSS 直聘原页面了解详情。',tags:['用户推荐','职位链接'],url:'https://m.zhipin.com/mpa/html/weijd/weijd-job/4f010dabfd5185a90nN43N-5GVZQ?date8=20260908&sid=tosee_jd_1d00e4b8a2f9d6dd1nZz3dy8E1E~&openWeapp=1&fromSource=2',note:'职位详情暂未读取，名称、薪资与招聘状态以原页为准。',location:'地点见原页',sourceLabel:'BOSS 直聘 · 09/08 收录',badge:'用户推荐'},
 {id:'191230',title:'Python',publisher:'程序员客栈',symbol:'Py',kind:'项目制',period:'1个月',salary:'¥1–6K / 月',summary:'将7家跨境海运物流商的物流轨迹数据，通过API同步至飞书多维表格。',tags:['Python','API接口','飞书'],url:'https://job.proginn.com/d/5af3107aa03a',note:'经验要求：5–10年。项目编号191230。'},
 {id:'44198',title:'前端',publisher:'程序员客栈',symbol:'</>',kind:'项目制',period:'1个月',salary:'¥1–6K / 月',summary:'开发订单管理后台，支持API同步、Excel导入、毛利计算与报表导出。',tags:['Java','C','网页后台'],url:'https://job.proginn.com/d/5af3107aa036',note:'经验要求：5–10年。技能按原文保留。'},
 {id:'44235',title:'小程序',publisher:'程序员客栈',symbol:'小',kind:'兼职',period:'正文时限1周',salary:'¥1–6K / 月',summary:'完善电子记账小程序的OCR识别、会员认证及问题修复，可洽谈长期兼职维护。',tags:['Taro','uniapp','OCR'],url:'https://job.proginn.com/d/5af3107aa035',note:'经验5–10年；页头1个月，正文1周、价格单聊，需确认。'},
