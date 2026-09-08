@@ -2,7 +2,7 @@
 import {useState} from 'react';
 import {Search,ArrowRight,MapPin,Clock3,UserRound,Bookmark,X,ExternalLink} from 'lucide-react';
 import {Dialog,DialogContent,DialogTitle,DialogDescription} from '@/components/ui/dialog';
-import {jobs} from './opportunities';
+import {jobs,opportunitySources} from './opportunities';
 import {useOpportunityTools} from './use-opportunity-tools';
 const tags=['AI产品经理','UI/UX设计','前端开发','品牌营销','法律','财务'];
 export default function Home(){
@@ -18,7 +18,7 @@ return <>
 {query&&<div className="search-status" role="status">找到 {filtered.length} 条已收录机会<button onClick={()=>search('')}><X size={14}/>清除筛选</button></div>}
 <div className="job-grid">{filtered.map((j,i)=><article className="job-card" key={j.id}><div className="card-source"><span className="pill">{j.badge??'候选 · 待审核'}</span><span>{j.publisher}</span></div><div className="job-title"><span className={'job-icon icon-'+i%4}>{j.symbol}</span><h3><a href={j.url} target="_blank" rel="noopener noreferrer">{j.title}</a></h3></div><div className="job-meta"><span><MapPin size={12}/>{j.location??'远程'}</span><span><Clock3 size={12}/>{j.period}</span></div><p className="job-description">{j.summary}</p><div className="skill-tags">{j.tags.map(t=><span key={t}>{t}</span>)}</div><div className="compensation"><strong>{j.salary}</strong><button className={saved.includes(j.id)?'bookmark saved':'bookmark'} aria-pressed={saved.includes(j.id)} aria-label={(saved.includes(j.id)?'取消收藏':'收藏')+j.title} onClick={()=>setSaved(saved.includes(j.id)?saved.filter(id=>id!==j.id):[...saved,j.id])}><Bookmark size={17}/></button></div><div className="source-bottom"><span>{j.sourceLabel??'程序员客栈 · 09/07 核对'}</span><a href={j.url} target="_blank" rel="noopener noreferrer">前往原平台 <ExternalLink size={13}/></a></div><p className="card-note">{j.note}</p>{j.details&&<button className="profile-text-link" onClick={()=>setNotice(j.title+'\n\n'+j.details!.join('\n\n'))}>查看职位详情 <ArrowRight size={14}/></button>}</article>)}</div>
 {!filtered.length&&<div className="empty-results"><Search size={28}/><h3>这个方向的机会还在整理中</h3><p>暂时没有符合条件的已核对机会。试试其他关键词，或查看全部项目。</p><button className="secondary" onClick={()=>search('')}>查看全部项目</button></div>}
-<div className="verification-note">包含已核对项目与用户推荐链接，详情核对情况见各卡片。职位状态以原平台为准，沟通可能需要登录。</div></section></main>
+<div className="opportunity-source-links">{opportunitySources.map(source=><a key={source.url} href={source.url} target="_blank" rel="noopener noreferrer"><div><strong>{source.title}</strong><p>{source.description}</p></div><span>查看更多机会 <ExternalLink size={15}/></span></a>)}</div><div className="verification-note">包含已核对项目与用户推荐链接，详情核对情况见各卡片。职位状态以原平台为准，沟通可能需要登录。</div></section></main>
 <footer className="wrap footer"><span>恣优 FlowIn</span><span>让经验被看见，让工作更自由。</span><span>首页预览 · 2026</span></footer>
 <Dialog open={!!notice} onOpenChange={open=>{if(!open)setNotice('')}}><DialogContent><DialogTitle>恣优 FlowIn</DialogTitle><DialogDescription style={{whiteSpace:'pre-line',maxHeight:'65vh',overflowY:'auto'}}>{notice}</DialogDescription></DialogContent></Dialog>
 </>;}
