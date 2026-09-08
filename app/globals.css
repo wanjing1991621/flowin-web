@@ -50,3 +50,14 @@
 @media(max-width:750px){.profile-columns{grid-template-columns:1fr}.profile-sidebar{display:grid;grid-template-columns:1fr}.profile-cover-bottom{flex-wrap:wrap;gap:24px}.profile-cover-actions{width:100%;justify-content:flex-end}.profile-stats{width:100%;justify-content:space-between}.profile-portrait{width:103px;height:103px}.profile-identity{gap:17px}.profile-name h1{font-size:23px}.profile-name{gap:7px}.profile-cover{padding:24px}.profile-identity p{font-size:14px}.journey-track{grid-template-columns:repeat(5,160px)}.profile-main{padding-top:14px}.profile-interactions button>span{width:45px;height:45px}.profile-page .nav-inner{flex-wrap:wrap;height:auto;padding-top:12px;gap:7px}.profile-page .nav-inner nav{width:100%;justify-content:center;gap:24px;margin:0}.profile-page .nav-inner nav a{padding:12px 0}.profile-page .nav-end{display:none}.profile-page .brand{margin:auto}}
 @media(max-width:640px){.mobile-me{display:inline}.nav-inner nav{gap:22px}.profile-cover{padding:23px 18px}.profile-identity{align-items:flex-start;gap:14px}.profile-portrait{width:80px;height:80px;border-width:3px}.profile-name h1{font-size:21px;width:100%;overflow-wrap:anywhere}.profile-name>span{font-size:12px;padding:0 8px}.profile-identity p{font-size:13px;line-height:1.8}.profile-cover-bottom{margin-top:25px}.profile-stats strong{font-size:23px}.profile-cover-actions{gap:9px}.profile-cover-actions button{font-size:13px;padding:9px 12px}.profile-activity{padding:0 16px}.profile-tab-list[data-slot=tabs-list]{gap:15px}.profile-tab-list [data-slot=tabs-trigger]{font-size:13px;padding:0 3px}.profile-filters{gap:13px}.profile-filters>div:first-child{gap:6px}.profile-filters button[aria-pressed]{padding:3px 10px}.profile-entry-image.design-strip{overflow-x:auto}.profile-entry-image.design-strip img{min-width:440px}.profile-person{gap:8px}.profile-person a{font-size:12px}.profile-main>.demo-caption{line-height:1.7}}
 @media(prefers-reduced-motion:reduce){.journey-track{scroll-behavior:auto}}
+
+.journey-subtitle{margin-left:auto;margin-right:14px;color:#8491a8;font-size:12px}
+.journey-card small{display:block;color:#8491a8;font-size:12px;line-height:1.55;margin-top:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.portfolio-case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.portfolio-case-grid article{border-bottom:1px solid #edf1f8;padding-bottom:18px}
+.portfolio-case-grid img{display:block;width:100%;height:150px;object-fit:cover;border-radius:9px;margin-bottom:12px}
+.portfolio-case-grid h3{font-size:16px;margin:10px 0 6px}
+.portfolio-case-grid p{font-size:13px!important}
+@media(max-width:640px){.journey-subtitle{display:none}.portfolio-case-grid{grid-template-columns:1fr}.portfolio-case-grid img{height:170px}}
+.community-page .footer>span:nth-child(2){display:none}
+.hero-art{background-image:url('/water-ring.png')}

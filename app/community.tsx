@@ -18,8 +18,8 @@ export default function Community(){
  return <div className="community-page">
  <header className="header"><div className="wrap nav-inner"><a className="brand" href="/"><span className="brand-mark"/><span className="brand-cn">恣优</span><span className="brand-en">FlowIn</span></a><nav aria-label="主导航"><a href="/">首页</a><a href="/#opportunities">项目机会</a><a className="active" href="/?page=community" aria-current="page">人才社区</a><a className="mobile-me" href="/?page=me">我</a><button onClick={()=>setNotice('关于我们页面即将开放。')}>关于我们</button></nav><div className="nav-end"><button className="publish" onClick={unavailable}>发布项目</button><a className="avatar" href="/?page=me" aria-label="我的主页"><UserRound size={24}/></a></div></div></header>
  <main className="wrap community-main">
- <section className="community-hero"><div><h1>人才社区</h1><p>这是一个瞬息万变的时代。<br/>旧工业时代的极致分工正在瓦解，<br/>AI 让自由成为可能。<br/>我们是转型的伙伴。</p></div><div className="community-wave" aria-hidden="true"/></section>
- <Tabs defaultValue="推荐" className="community-tabs"><TabsList aria-label="社区频道">{channels.map(c=><TabsTrigger key={c} value={c}>{c}</TabsTrigger>)}</TabsList>
+ <section className="community-hero"><div><h1>人才社区</h1><p>这是一个瞬息万变的时代。<br/>旧工业时代的极致分工正在瓦解，<br/>AI 让自由成为可能。</p></div><div className="community-wave" aria-hidden="true"/></section>
+ <Tabs defaultValue="推荐" className="community-tabs">
  <p className="demo-caption">社区预览 · 以下活动、成员与动态均为演示内容</p>
  <div className="community-columns"><div className="community-feed">
  <section className="community-panel events"><div className="community-heading"><h2>线下活动</h2><button onClick={()=>setNotice('线下活动正在筹备，具体时间、地点与报名方式将在确认后公布。')}>查看全部 <ArrowRight size={14}/></button></div><div className="event-grid">{[['OPC伙伴交流会','上海 · 时间待定','meet'],['AI工具共创工作坊','杭州 · 时间待定','desk'],['自由职业者咖啡局','深圳 · 时间待定','work']].map(([title,place,photo])=><button className="event-card" key={title} onClick={()=>setNotice(title+'：此为活动示例，尚未开放报名。真实活动信息确认后会在这里更新。')}><div className={'community-photo '+photo}><span>筹备中</span></div><h3>{title}</h3><p><MapPin size={13}/>{place}</p></button>)}</div></section>
