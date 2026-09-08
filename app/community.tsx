@@ -16,7 +16,7 @@ export default function Community(){
  const toggle=(items:string[],name:string,set:(v:string[])=>void)=>set(items.includes(name)?items.filter(x=>x!==name):[...items,name]);
  const unavailable=()=>setNotice('社区互动功能筹备中。这是页面预览，暂不提交或公开发布内容。');
  return <div className="community-page">
- <header className="header"><div className="wrap nav-inner"><a className="brand" href="/"><span className="brand-mark"/><span className="brand-cn">恣优</span><span className="brand-en">FlowIn</span></a><nav aria-label="主导航"><a href="/">首页</a><a href="/#opportunities">项目机会</a><a className="active" href="/?page=community" aria-current="page">人才社区</a><button onClick={()=>setNotice('关于我们页面即将开放。')}>关于我们</button></nav><div className="nav-end"><button className="publish" onClick={unavailable}>发布项目</button><button className="avatar" aria-label="个人主页" onClick={()=>setNotice('个人主页正在筹备中。')}><UserRound size={24}/></button></div></div></header>
+ <header className="header"><div className="wrap nav-inner"><a className="brand" href="/"><span className="brand-mark"/><span className="brand-cn">恣优</span><span className="brand-en">FlowIn</span></a><nav aria-label="主导航"><a href="/">首页</a><a href="/#opportunities">项目机会</a><a className="active" href="/?page=community" aria-current="page">人才社区</a><a className="mobile-me" href="/?page=me">我</a><button onClick={()=>setNotice('关于我们页面即将开放。')}>关于我们</button></nav><div className="nav-end"><button className="publish" onClick={unavailable}>发布项目</button><a className="avatar" href="/?page=me" aria-label="我的主页"><UserRound size={24}/></a></div></div></header>
  <main className="wrap community-main">
  <section className="community-hero"><div><h1>人才社区</h1><p>这是一个瞬息万变的时代。<br/>旧工业时代的极致分工正在瓦解，<br/>AI 让自由成为可能。<br/>我们是转型的伙伴。</p></div><div className="community-wave" aria-hidden="true"/></section>
  <Tabs defaultValue="推荐" className="community-tabs"><TabsList aria-label="社区频道">{channels.map(c=><TabsTrigger key={c} value={c}>{c}</TabsTrigger>)}</TabsList>
@@ -30,3 +30,4 @@ export default function Community(){
  <Dialog open={!!notice} onOpenChange={open=>{if(!open)setNotice('')}}><DialogContent><DialogTitle>恣优社区</DialogTitle><DialogDescription>{notice}</DialogDescription></DialogContent></Dialog>
  </div>;
 }
+
