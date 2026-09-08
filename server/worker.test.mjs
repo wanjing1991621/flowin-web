@@ -1,0 +1,22 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {readFileSync,readdirSync} from 'node:fs';
+import worker from './worker.js';
+test('account profiles persist, remain isolated, and reject invalid writes',async()=>{
+ const sql=new DatabaseSync(':memory:');
+ for(const file of readdirSync('drizzle').filter(f=>f.endsWith('.sql')))sql.exec(readFileSync('drizzle/'+file,'utf8'));
+ const env={DB:{prepare:q=>({bind:(...values)=>({first:async()=>sql.prepare(q).get(...values),run:async()=>sql.prepare(q).run(...values)})})}};
+ const origin='https://flowin-home-wanjing.wanjing1991621.chatgpt.site';
+ const call=(user,method='GET',data,extra={})=>worker.fetch(new Request(origin+'/api/profile',{method,headers:{...(user?{'oai-authenticated-user-id':user}:{}),origin,'content-type':'application/json',...extra},...(data?{body:JSON.stringify(data)}:{})}),env);
+ assert.equal((await call(null)).status,401);
+ const profile={name:'万菁',role:'产品企划',city:'上海',bio:'连接彼此',about:'市场营销',tags:'日语、英语'};
+ assert.equal((await call('a','PUT',profile)).status,200);
+ const response=await call('a');assert.equal(response.headers.get('cache-control'),'no-store');assert.deepEqual((await response.json()).profile,profile);
+ assert.equal((await (await call('b')).json()).profile,null);
+ assert.equal((await call('a','PUT',{...profile,name:' '})).status,400);
+ assert.equal((await call('a','PUT',{...profile,name:'x'.repeat(21)})).status,400);
+ assert.equal((await call('a','PUT',profile,{origin:'https://untrusted.example'})).status,403);
+ assert.deepEqual((await (await call('a')).json()).profile,profile);
+ sql.close();
+});

@@ -61,3 +61,9 @@
 @media(max-width:640px){.journey-subtitle{display:none}.portfolio-case-grid{grid-template-columns:1fr}.portfolio-case-grid img{height:170px}}
 .community-page .footer>span:nth-child(2){display:none}
 .hero-art{background-image:url('/water-ring.png')}
+
+/* Show only the clean artwork region of the supplied originals. */
+.hero-art{inset:auto;top:20px;right:8%;width:min(39%,440px);height:auto;aspect-ratio:440/370;background-image:url('/brand.png');background-size:349.0909% 276.7568%;background-position:50.1825% 25.9939%;background-repeat:no-repeat;mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mix-blend-mode:multiply}
+.community-wave{right:0;top:0;width:44%;height:auto;aspect-ratio:335/180;background-size:458.5075% 568.8889%;background-position:34.9709% 9.4787%;background-repeat:no-repeat;mask-image:linear-gradient(90deg,transparent,#000 14%);opacity:1}
+.profile-monogram{display:inline-flex;align-items:center;justify-content:center;background:#e2edff;color:#2156b3;font-weight:600}.profile-portrait.profile-monogram{font-size:44px}.profile-nav-avatar>.profile-monogram{width:100%;height:100%;border-radius:50%}.journey-no-image{height:145px;background:#edf3fc;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;color:#637fa9}.journey-card img,.portfolio-case-grid img{object-fit:contain;background:#f3f6fb}.profile-journey-dialog>img{max-height:60vh;object-fit:contain}.profile-form-actions button:disabled{opacity:.6;cursor:wait}.profile-sidebar .profile-facts li{align-items:flex-start}
+@media(max-width:700px){.hero-art{top:35px;right:0;width:45%;opacity:.25}.community-wave{right:0;width:52%;opacity:.3}.profile-portrait.profile-monogram{font-size:32px}}
