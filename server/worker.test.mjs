@@ -20,3 +20,25 @@ test('account profiles persist, remain isolated, and reject invalid writes',asyn
  assert.deepEqual((await (await call('a')).json()).profile,profile);
  sql.close();
 });
+
+test('registration saves privately without replacing the portfolio profile',async()=>{
+ const sql=new DatabaseSync(':memory:');
+ for(const file of readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())sql.exec(readFileSync('drizzle/'+file,'utf8'));
+ const env={DB:{prepare:q=>({bind:(...values)=>({first:async()=>sql.prepare(q).get(...values),run:async()=>sql.prepare(q).run(...values)})})}};
+ const origin='https://flowin-home-wanjing.wanjing1991621.chatgpt.site';
+ const call=(user,path='/api/registration',method='GET',data,source=origin)=>worker.fetch(new Request(origin+path,{method,headers:{...(user?{'oai-authenticated-user-id':user}:{}),origin:source,'content-type':'application/json'},...(data?{body:JSON.stringify(data)}:{})}),env);
+ const record={name:'昵称',contact:'hello@example.com',direction:'设计、产品',city:'上海',workTypes:'兼职、项目合作；远程'};
+ assert.equal((await call(null)).status,401);
+ assert.equal((await call('a','/api/registration','PUT',record)).status,200);
+ assert.deepEqual((await (await call('a')).json()).registration,record);
+ assert.equal((await (await call('b')).json()).registration,null);
+ assert.equal((await (await call('a','/api/profile')).json()).profile,null);
+ assert.equal((await call('a','/api/registration','PUT',{...record,contact:'bad'})).status,400);
+ assert.equal((await call('a','/api/registration','PUT',{...record,direction:' '})).status,400);
+ assert.equal((await call('a','/api/registration','PUT',record,'https://other.example')).status,403);
+ const update={...record,contact:'+81 90 1234 5678',city:''};
+ assert.equal((await call('a','/api/registration','PUT',update)).status,200);
+ assert.deepEqual((await (await call('a')).json()).registration,update);
+ assert.equal(sql.prepare('SELECT count(*) AS n FROM registrations').get().n,1);
+ sql.close();
+});
