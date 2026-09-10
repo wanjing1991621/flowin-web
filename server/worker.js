@@ -3,6 +3,7 @@ const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control
 export default {
  async fetch(request,env){
   const url=new URL(request.url);
+  if(/^\/(profile\/[^/]+|requirements\/new|messages(?:\/[^/]+)?)\/?$/.test(url.pathname))return env.ASSETS.fetch(new Request(new URL('/index.html',url),request));
   if(!['/api/profile','/api/registration'].includes(url.pathname))return env.ASSETS.fetch(request);
   const registration=url.pathname==='/api/registration';
   const table=registration?'registrations':'profiles';
