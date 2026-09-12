@@ -1,6 +1,6 @@
 import {createClient} from '@supabase/supabase-js';
 export const supabase=createClient(import.meta.env.NEXT_PUBLIC_SUPABASE_URL,import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
-export type PublicProfile={id:string;name:string;avatar_url?:string;headline?:string;bio?:string;city?:string;skills?:string[]|string};
+export type PublicProfile={id:string;name:string;avatar_url?:string;headline?:string;bio?:string;city?:string;skills?:string[]|string;xiaohongshu_url?:string;bilibili_url?:string;jike_url?:string;wechat_id?:string;wechat_qr_url?:string;wechat_public?:boolean};
 export type Post={id:string;user_id:string;content:string;status:string;created_at:string};
 export type Requirement={id:string;user_id:string;title:string;description:string;type?:string;work_mode?:string;budget_min?:number;budget_max?:number;budget_negotiable?:boolean;location?:string;remote?:boolean;duration?:string;experience_level?:string;skills?:string[]|string;deliverables?:string;company_name?:string;contact_note?:string;deadline?:string;created_at:string};
 export function skillList(value?:string[]|string){return Array.isArray(value)?value:typeof value==='string'?value.split(/[、,，]/).map(s=>s.trim()).filter(Boolean):[]}
