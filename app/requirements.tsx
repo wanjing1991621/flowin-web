@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {useAuth} from './auth';
-import {supabase,profilesFor,skillList,type PublicProfile,type Requirement} from './supabase';
+import {supabase,profilesFor,skillList,messagesUrl,type PublicProfile,type Requirement} from './supabase';
 import {Author,Header} from './social-ui';
 import {Select,SelectTrigger,SelectValue,SelectContent,SelectItem} from '@/components/ui/select';
 import {Checkbox} from '@/components/ui/checkbox';
@@ -11,7 +11,7 @@ export async function startConversation(ownerId:string,requesterId:string,requir
  query=requirementId?query.eq('owner_id',ownerId).eq('requester_id',requesterId).eq('requirement_id',requirementId):query.is('requirement_id',null).or(`and(owner_id.eq.${ownerId},requester_id.eq.${requesterId}),and(owner_id.eq.${requesterId},requester_id.eq.${ownerId})`);
  const {data,error}=await query.limit(1).maybeSingle();if(error)throw error;
  let id=data?.id;if(!id){const {data:created,error}=await supabase.from('conversations').insert({owner_id:ownerId,requester_id:requesterId,requirement_id:requirementId??null}).select('id').single();if(error)throw error;id=created.id}
- window.location.href='/messages/'+id;
+ window.location.href=messagesUrl(id);
 }
 export function ChatButton({ownerId,requirementId}:{ownerId:string;requirementId?:string}){const {requireUser,user}=useAuth();const [busy,setBusy]=useState(false),[error,setError]=useState('');if(user?.id===ownerId)return null;return <><button className="secondary" disabled={busy} onClick={async()=>{if(busy)return;setBusy(true);setError('');try{const user=await requireUser();if(user)await startConversation(ownerId,user.id,requirementId)}catch(e){console.error(e);setError('暂时无法打开聊天，请稍后重试。')}finally{setBusy(false)}}}>{busy?'正在打开…':'聊一聊'}</button>{error&&<span role="alert">{error}</span>}</>}
 function budget(r:Requirement){if(r.budget_negotiable)return '预算面议';if(r.budget_min!=null&&r.budget_max!=null)return `¥${r.budget_min.toLocaleString()}–${r.budget_max.toLocaleString()}`;if(r.budget_min!=null)return `¥${r.budget_min.toLocaleString()}起`;if(r.budget_max!=null)return `最高 ¥${r.budget_max.toLocaleString()}`;return '预算待沟通'}

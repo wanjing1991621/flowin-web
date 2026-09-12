@@ -6,4 +6,7 @@ export type Requirement={id:string;user_id:string;title:string;description:strin
 export function skillList(value?:string[]|string){return Array.isArray(value)?value:typeof value==='string'?value.split(/[、,，]/).map(s=>s.trim()).filter(Boolean):[]}
 export async function profilesFor(ids:string[]){const unique=[...new Set(ids)];if(!unique.length)return {} as Record<string,PublicProfile>;const {data,error}=await supabase.from('profiles').select('id,name,avatar_url,headline,bio,city,skills').in('id',unique);if(error)throw error;return Object.fromEntries((data??[]).map(p=>[p.id,p])) as Record<string,PublicProfile>}
 export function dateLabel(value:string){return new Date(value).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}
+export const publishUrl='/?page=publish';
+export const profileUrl=(id:string)=>'/?page=profile&user='+encodeURIComponent(id);
+export const messagesUrl=(id?:string)=>id?'/?page=messages&conversation='+encodeURIComponent(id):'/?page=messages';
 export async function ensureProfile(user:{id:string;user_metadata?:Record<string,unknown>}){const {data,error}=await supabase.from('profiles').select('id').eq('id',user.id).maybeSingle();if(error)throw error;if(!data){const {error}=await supabase.from('profiles').upsert({id:user.id,name:String(user.user_metadata?.name||'新伙伴')},{onConflict:'id',ignoreDuplicates:true});if(error)throw error}}
