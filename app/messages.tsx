@@ -1,15 +1,338 @@
-import {useEffect,useRef,useState} from 'react';
-import {useAuth} from './auth';
-import {supabase,profilesFor,dateLabel,profileUrl,messagesUrl,type PublicProfile} from './supabase';
-import {Header,Author} from './social-ui';
-type Conversation={id:string;owner_id:string;requester_id:string;requirement_id:string|null;created_at:string};
-type Message={id:string;conversation_id:string;sender_id:string;content:string;created_at:string};
-export default function Messages({conversationId}:{conversationId?:string}){
- const {user,ready,openAuth,requireUser}=useAuth();const [conversations,setConversations]=useState<Conversation[]>([]),[messages,setMessages]=useState<Message[]>([]),[profiles,setProfiles]=useState<Record<string,PublicProfile>>({}),[requirements,setRequirements]=useState<Record<string,any>>({}),[draft,setDraft]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true);const sending=useRef(false),end=useRef<HTMLDivElement>(null);
- useEffect(()=>{let alive=true;if(!user){setConversations([]);setMessages([]);setLoading(false);return}setLoading(true);async function load(){try{const {data,error}=await supabase.from('conversations').select('*').or(`owner_id.eq.${user!.id},requester_id.eq.${user!.id}`).order('created_at',{ascending:false});if(error)throw error;const convs=(data??[]) as Conversation[];const selected=conversationId?convs.find(c=>c.id===conversationId):null;if(conversationId&&!selected)throw new Error('当前账号不属于这个会话，或会话不存在。');const authors=await profilesFor(convs.flatMap(c=>[c.owner_id,c.requester_id]));const requirementIds=convs.map(c=>c.requirement_id).filter(Boolean) as string[];let requirementMap:Record<string,any>={};if(requirementIds.length){const result=await supabase.from('requirements').select('id,title,work_mode,location,budget_min,budget_max,budget_negotiable').in('id',requirementIds);if(result.error)throw result.error;requirementMap=Object.fromEntries((result.data??[]).map(r=>[r.id,r]))}let rows:Message[]=[];if(conversationId){const result=await supabase.from('messages').select('*').eq('conversation_id',conversationId).order('created_at',{ascending:true});if(result.error)throw result.error;rows=(result.data??[]) as Message[]}if(!alive)return;setConversations(convs);setProfiles(authors);setRequirements(requirementMap);setMessages(rows);setError('');if(!conversationId&&convs[0])window.location.replace(messagesUrl(convs[0].id))}catch(e){if(alive){setMessages([]);setError(e instanceof Error?e.message:JSON.stringify(e))}}finally{if(alive)setLoading(false)}}load();const timer=window.setInterval(()=>{if(document.visibilityState==='visible'&&!sending.current)load()},5000);return()=>{alive=false;clearInterval(timer)}},[user?.id,conversationId]);
- useEffect(()=>end.current?.scrollIntoView({block:'nearest'}),[messages.length]);
- async function send(e:React.FormEvent){e.preventDefault();if(sending.current||!draft.trim()||!conversationId)return;sending.current=true;setBusy(true);setError('');try{const current=await requireUser();if(!current)return;const activeConversation=conversations.find(c=>c.id===conversationId);if(!activeConversation||![activeConversation.owner_id,activeConversation.requester_id].includes(current.id))throw new Error('当前账号不属于这个会话。');const inserted=await supabase.from('messages').insert({conversation_id:conversationId,sender_id:current.id,content:draft.trim()}).select().single();if(inserted.error||!inserted.data)throw inserted.error||new Error('消息已提交，但未返回消息内容。');const refreshed=await supabase.from('messages').select('*').eq('conversation_id',conversationId).order('created_at',{ascending:true});if(refreshed.error)throw refreshed.error;setMessages((refreshed.data??[]) as Message[]);setDraft('')}catch(e){console.error(e);setError(e instanceof Error?e.message:JSON.stringify(e))}finally{sending.current=false;setBusy(false)}}
- const active=conversations.find(c=>c.id===conversationId),other=active?(active.owner_id===user?.id?active.requester_id:active.owner_id):null;
- const visibleConversations=conversations.filter((c,index,list)=>{const peer=c.owner_id===user?.id?c.requester_id:c.owner_id;return list.findIndex(item=>(item.owner_id===user?.id?item.requester_id:item.owner_id)===peer)===index});
- return <><Header/><main className="wrap social-main messages-page"><h1>消息</h1>{!ready?<p>正在读取账号…</p>:!user?<section className="community-panel"><p>登录后查看会话。</p><button className="primary" onClick={()=>openAuth()}>登录 / 注册</button></section>:<div className="message-layout"><aside className="conversation-list">{loading&&!conversations.length?<p>正在读取会话…</p>:visibleConversations.map(c=>{const id=c.owner_id===user.id?c.requester_id:c.owner_id,job=c.requirement_id?requirements[c.requirement_id]:null,selectedPeer=active?(active.owner_id===user.id?active.requester_id:active.owner_id):null;return <a key={id} href={messagesUrl(c.id)} className={id===selectedPeer?'conversation active':'conversation'}><Author id={id} profile={profiles[id]}/><div className="conversation-summary"><strong>{job?.title||'直接沟通'}</strong><span>{dateLabel(c.created_at)}</span></div></a>})}{!loading&&!conversations.length&&<p className="community-empty">暂无会话。在需求或伙伴主页点击「聊一聊」开始交流。</p>}</aside><section className="chat-panel">{other&&<header className="chat-header"><Author id={other} profile={profiles[other]}/>{active?.requirement_id&&requirements[active.requirement_id]&&<div className="message-requirement"><strong>{requirements[active.requirement_id].title}</strong><span>{[requirements[active.requirement_id].work_mode,requirements[active.requirement_id].location].filter(Boolean).join(' · ')}</span></div>}</header>}<div className="message-stream">{messages.map((m,index)=><div key={m.id}>{(index===0||new Date(messages[index-1].created_at).toDateString()!==new Date(m.created_at).toDateString())&&<div className="message-time-separator">{new Date(m.created_at).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>}<article className={'message '+(m.sender_id===user.id?'sent':'received')}><a href={profileUrl(m.sender_id)}>{profiles[m.sender_id]?.name||'新伙伴'}</a><p className="plain-content">{m.content}</p><time>{dateLabel(m.created_at)}</time></article></div>)}<div ref={end}/>{!active&&!loading&&<p className="chat-empty">从左侧选择一位伙伴，开始交流。</p>}{active&&!messages.length&&<p className="chat-empty">写下第一条消息吧。</p>}</div>{error&&<p role="alert" className="message-error">{error}</p>}{active&&<form className="message-compose" onSubmit={send}><label className="sr-only" htmlFor="message-content">消息内容</label><textarea id="message-content" value={draft} onChange={e=>setDraft(e.target.value)} placeholder="输入消息…" required/><button className="primary" disabled={busy||!draft.trim()}>{busy?'发送中…':'发送'}</button></form>}</section></div>}</main></>;
+import { useEffect, useRef, useState } from 'react';
+import { useAuth } from './auth';
+import {
+  supabase,
+  profilesFor,
+  dateLabel,
+  profileUrl,
+  messagesUrl,
+  type PublicProfile,
+} from './supabase';
+import { Header, Author } from './social-ui';
+type Conversation = {
+  id: string;
+  owner_id: string;
+  requester_id: string;
+  requirement_id: string | null;
+  created_at: string;
+};
+type Message = {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
+};
+export default function Messages({
+  conversationId,
+}: {
+  conversationId?: string;
+}) {
+  const { user, ready, openAuth, requireUser } = useAuth();
+  const [conversations, setConversations] = useState<Conversation[]>([]),
+    [messages, setMessages] = useState<Message[]>([]),
+    [profiles, setProfiles] = useState<Record<string, PublicProfile>>({}),
+    [requirements, setRequirements] = useState<Record<string, any>>({}),
+    [draft, setDraft] = useState(''),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(false),
+    [loading, setLoading] = useState(true);
+  const sending = useRef(false),
+    stream = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let alive = true;
+    if (!user) {
+      setConversations([]);
+      setMessages([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    async function load() {
+      try {
+        const { data, error } = await supabase
+          .from('conversations')
+          .select('*')
+          .or(`owner_id.eq.${user!.id},requester_id.eq.${user!.id}`)
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        const convs = (data ?? []) as Conversation[];
+        const selected = conversationId
+          ? convs.find((c) => c.id === conversationId)
+          : null;
+        if (conversationId && !selected)
+          throw new Error('当前账号不属于这个会话，或会话不存在。');
+        const authors = await profilesFor(
+          convs.flatMap((c) => [c.owner_id, c.requester_id]),
+        );
+        const requirementIds = convs
+          .map((c) => c.requirement_id)
+          .filter(Boolean) as string[];
+        let requirementMap: Record<string, any> = {};
+        if (requirementIds.length) {
+          const result = await supabase
+            .from('requirements')
+            .select(
+              'id,title,work_mode,location,budget_min,budget_max,budget_negotiable',
+            )
+            .in('id', requirementIds);
+          if (result.error) throw result.error;
+          requirementMap = Object.fromEntries(
+            (result.data ?? []).map((r) => [r.id, r]),
+          );
+        }
+        let rows: Message[] = [];
+        if (conversationId) {
+          const result = await supabase
+            .from('messages')
+            .select('*')
+            .eq('conversation_id', conversationId)
+            .order('created_at', { ascending: true });
+          if (result.error) throw result.error;
+          rows = (result.data ?? []) as Message[];
+        }
+        if (!alive) return;
+        setConversations(convs);
+        setProfiles(authors);
+        setRequirements(requirementMap);
+        setMessages(rows);
+        setError('');
+        if (!conversationId && convs[0])
+          window.location.replace(messagesUrl(convs[0].id));
+      } catch (e) {
+        if (alive) {
+          setError(
+            e instanceof Error
+              ? e.message
+              : String((e as { message?: unknown })?.message || e),
+          );
+        }
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+    load();
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === 'visible' && !sending.current) load();
+    }, 5000);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, [user?.id, conversationId]);
+  useEffect(() => {
+    const element = stream.current;
+    if (element) element.scrollTop = element.scrollHeight;
+  }, [messages.length, conversationId]);
+  async function send(e: React.FormEvent) {
+    e.preventDefault();
+    if (sending.current || !draft.trim() || !conversationId) return;
+    sending.current = true;
+    setBusy(true);
+    setError('');
+    try {
+      const current = await requireUser();
+      if (!current) return;
+      const activeConversation = conversations.find(
+        (c) => c.id === conversationId,
+      );
+      if (
+        !activeConversation ||
+        ![
+          activeConversation.owner_id,
+          activeConversation.requester_id,
+        ].includes(current.id)
+      )
+        throw new Error('当前账号不属于这个会话。');
+      const text = draft.trim();
+      const inserted = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: conversationId,
+          sender_id: current.id,
+          content: text,
+        })
+        .select('id,conversation_id,sender_id,content,created_at')
+        .single();
+      if (inserted.error || !inserted.data)
+        throw inserted.error || new Error('消息已提交，但未返回消息内容。');
+      const message = inserted.data as Message;
+      setMessages((currentMessages) =>
+        currentMessages.some((item) => item.id === message.id)
+          ? currentMessages
+          : [...currentMessages, message],
+      );
+      setDraft('');
+    } catch (e) {
+      console.error(e);
+      setError(
+        e instanceof Error
+          ? e.message
+          : String((e as { message?: unknown })?.message || e),
+      );
+    } finally {
+      sending.current = false;
+      setBusy(false);
+    }
+  }
+  const active = conversations.find((c) => c.id === conversationId),
+    other = active
+      ? active.owner_id === user?.id
+        ? active.requester_id
+        : active.owner_id
+      : null;
+  const visibleConversations = conversations.filter((c, index, list) => {
+    const peer = c.owner_id === user?.id ? c.requester_id : c.owner_id;
+    return (
+      list.findIndex(
+        (item) =>
+          (item.owner_id === user?.id ? item.requester_id : item.owner_id) ===
+          peer,
+      ) === index
+    );
+  });
+  return (
+    <>
+      <Header />
+      <main className="wrap social-main messages-page">
+        <h1>消息</h1>
+        {!ready ? (
+          <p>正在读取账号…</p>
+        ) : !user ? (
+          <section className="community-panel">
+            <p>登录后查看会话。</p>
+            <button className="primary" onClick={() => openAuth()}>
+              登录 / 注册
+            </button>
+          </section>
+        ) : (
+          <div className="message-layout">
+            <aside className="conversation-list">
+              {loading && !conversations.length ? (
+                <p>正在读取会话…</p>
+              ) : (
+                visibleConversations.map((c) => {
+                  const id =
+                      c.owner_id === user.id ? c.requester_id : c.owner_id,
+                    job = c.requirement_id
+                      ? requirements[c.requirement_id]
+                      : null,
+                    selectedPeer = active
+                      ? active.owner_id === user.id
+                        ? active.requester_id
+                        : active.owner_id
+                      : null;
+                  return (
+                    <a
+                      key={id}
+                      href={messagesUrl(c.id)}
+                      className={
+                        id === selectedPeer
+                          ? 'conversation active'
+                          : 'conversation'
+                      }
+                    >
+                      <Author id={id} profile={profiles[id]} />
+                      <div className="conversation-summary">
+                        <strong>{job?.title || '直接沟通'}</strong>
+                        <span>{dateLabel(c.created_at)}</span>
+                      </div>
+                    </a>
+                  );
+                })
+              )}
+              {!loading && !conversations.length && (
+                <p className="community-empty">
+                  暂无会话。在需求或伙伴主页点击「聊一聊」开始交流。
+                </p>
+              )}
+            </aside>
+            <section className="chat-panel">
+              {other && (
+                <header className="chat-header">
+                  <Author id={other} profile={profiles[other]} />
+                  {active?.requirement_id &&
+                    requirements[active.requirement_id] && (
+                      <div className="message-requirement">
+                        <strong>
+                          {requirements[active.requirement_id].title}
+                        </strong>
+                        <span>
+                          {[
+                            requirements[active.requirement_id].work_mode,
+                            requirements[active.requirement_id].location,
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </span>
+                      </div>
+                    )}
+                </header>
+              )}
+          <div className="message-stream" ref={stream}>
+                {messages.map((m, index) => (
+                  <div key={m.id}>
+                    {(index === 0 ||
+                      new Date(
+                        messages[index - 1].created_at,
+                      ).toDateString() !==
+                        new Date(m.created_at).toDateString()) && (
+                      <div className="message-time-separator">
+                        {new Date(m.created_at).toLocaleString('zh-CN', {
+                          month: 'numeric',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </div>
+                    )}
+                    <article
+                      className={
+                        'message ' +
+                        (m.sender_id === user.id ? 'sent' : 'received')
+                      }
+                    >
+                      <a href={profileUrl(m.sender_id)}>
+                        {profiles[m.sender_id]?.name || '新伙伴'}
+                      </a>
+                      <p className="plain-content">{m.content}</p>
+                      <time>{dateLabel(m.created_at)}</time>
+                    </article>
+                  </div>
+                ))}
+                {!active && !loading && (
+                  <p className="chat-empty">从左侧选择一位伙伴，开始交流。</p>
+                )}
+                {active && !messages.length && (
+                  <p className="chat-empty">写下第一条消息吧。</p>
+                )}
+              </div>
+              {error && (
+                <p role="alert" className="message-error">
+                  {error}
+                </p>
+              )}
+              {active && (
+                <form className="message-compose" onSubmit={send}>
+                  <label className="sr-only" htmlFor="message-content">
+                    消息内容
+                  </label>
+                  <textarea
+                    id="message-content"
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    placeholder="输入消息…"
+                    required
+                  />
+                  <button className="primary" disabled={busy || !draft.trim()}>
+                    {busy ? '发送中…' : '发送'}
+                  </button>
+                </form>
+              )}
+            </section>
+          </div>
+        )}
+      </main>
+    </>
+  );
 }
