@@ -324,7 +324,11 @@ export default function Messages({
                     placeholder="输入消息…"
                     required
                   />
-                  <button className="primary" disabled={busy || !draft.trim()}>
+                  <button
+                    className="primary"
+                    disabled={busy || !draft.trim()}
+                    aria-busy={busy}
+                  >
                     {busy ? '发送中…' : '发送'}
                   </button>
                 </form>
