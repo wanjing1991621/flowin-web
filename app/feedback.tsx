@@ -41,14 +41,12 @@ export default function Feedback() {
     if (busy) return;
     setBusy(true);
     try {
-      const { error } = await supabase
-        .from('feedback')
-        .insert({
-          feedback_type: type,
-          content: content.trim(),
-          contact: contact.trim() || null,
-          user_id: user?.id ?? null,
-        });
+      const { error } = await supabase.from('feedback').insert({
+        feedback_type: type,
+        content: content.trim(),
+        contact: contact.trim() || null,
+        user_id: user?.id ?? null,
+      });
       if (error) throw error;
       setType('');
       setContent('');
@@ -66,11 +64,7 @@ export default function Feedback() {
       <Header active="投诉建议" />
       <main className="feedback-page">
         <section className="feedback-content">
-          <h1>
-            一起，让 FlowIn
-            <br />
-            变得更好。
-          </h1>
+          <h1>一起，让 FlowIn 变得更好。</h1>
           <p>
             FlowIn 还在成长。
             <br />

@@ -12,11 +12,7 @@ export default function About() {
       <Header active="关于我们" />
       <main className="story-page">
         <section className="story-content">
-          <h1>
-            AI 正在改变
-            <br />
-            工作的方式。
-          </h1>
+          <h1>AI 正在改变工作的方式。</h1>
           <p>
             我们相信，未来的职业不一定只有一条固定的路径。
             <br />
