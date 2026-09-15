@@ -5,6 +5,7 @@ import {
   MapPin,
   BriefcaseBusiness,
   Upload,
+  FileText,
 } from 'lucide-react';
 import {
   Dialog,
@@ -78,7 +79,13 @@ export default function Profile({ userId }: { userId?: string }) {
     [draft, setDraft] = useState(blank),
     [postDraft, setPostDraft] = useState(''),
     [journeyOpen, setJourneyOpen] = useState(false),
-    [journey, setJourney] = useState({ time: '', project: '', details: '' }),
+    [journey, setJourney] = useState({
+      time: '',
+      project: '',
+      details: '',
+      attachmentUrl: '',
+      attachmentName: '',
+    }),
     [following, setFollowing] = useState<any[]>([]),
     [followers, setFollowers] = useState<any[]>([]),
     [followOpen, setFollowOpen] = useState<'following' | 'followers' | null>(
@@ -242,7 +249,10 @@ export default function Profile({ userId }: { userId?: string }) {
     try {
       const current = await requireUser();
       if (!current || current.id !== id) return;
-      const content = `【时光长廊】${journey.time.trim()}｜${journey.project.trim()}\n${journey.details.trim()}`;
+      const attachment = journey.attachmentUrl
+        ? `\n【经历附件】${encodeURIComponent(journey.attachmentName)}|${journey.attachmentUrl}`
+        : '';
+      const content = `【时光长廊】${journey.time.trim()}｜${journey.project.trim()}\n${journey.details.trim()}${attachment}`;
       const { data, error } = await supabase
         .from('posts')
         .insert({ user_id: current.id, content, status: 'published' })
@@ -250,12 +260,65 @@ export default function Profile({ userId }: { userId?: string }) {
         .single();
       if (error) throw error;
       setPosts((v) => [data, ...v]);
-      setJourney({ time: '', project: '', details: '' });
+      setJourney({
+        time: '',
+        project: '',
+        details: '',
+        attachmentUrl: '',
+        attachmentName: '',
+      });
       setJourneyOpen(false);
       setNotice('经历已添加');
     } catch (e) {
       console.error(e);
       setError('经历保存未成功，请稍后重试。');
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function uploadJourneyAttachment(file?: File) {
+    if (!file) return;
+    const allowedExtensions = [
+      'pdf',
+      'doc',
+      'docx',
+      'ppt',
+      'pptx',
+      'xls',
+      'xlsx',
+      'txt',
+      'zip',
+    ];
+    const extension = file.name.split('.').pop()?.toLowerCase() || '';
+    if (!allowedExtensions.includes(extension)) {
+      setError('附件支持 PDF、Word、PPT、Excel、TXT 或 ZIP 文件。');
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      setError('项目附件请控制在 20MB 以内。');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const current = await requireUser();
+      if (!current || current.id !== id) return;
+      const path = `${current.id}/journey-${Date.now()}.${extension}`;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (uploadError) throw uploadError;
+      const url = supabase.storage.from('avatars').getPublicUrl(path).data
+        .publicUrl;
+      setJourney((value) => ({
+        ...value,
+        attachmentUrl: url,
+        attachmentName: file.name,
+      }));
+      setNotice('附件已上传，请保存经历。');
+    } catch (e) {
+      console.error(e);
+      setError('附件上传失败，请稍后重试。');
     } finally {
       setBusy(false);
     }
@@ -492,10 +555,36 @@ export default function Profile({ userId }: { userId?: string }) {
                       const [heading, ...body] = p.content
                         .replace('【时光长廊】', '')
                         .split('\n');
+                      const attachmentLine = body.find((line) =>
+                        line.startsWith('【经历附件】'),
+                      );
+                      const [encodedName, attachmentUrl] = attachmentLine
+                        ? attachmentLine.replace('【经历附件】', '').split('|')
+                        : ['', ''];
+                      const attachmentName = encodedName
+                        ? decodeURIComponent(encodedName)
+                        : '';
                       return (
                         <article key={p.id}>
                           <strong>{heading}</strong>
-                          <p className="plain-content">{body.join('\n')}</p>
+                          <p className="plain-content">
+                            {body
+                              .filter(
+                                (line) => !line.startsWith('【经历附件】'),
+                              )
+                              .join('\n')}
+                          </p>
+                          {attachmentUrl && (
+                            <a
+                              className="journey-attachment"
+                              href={attachmentUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              <FileText size={16} />
+                              {attachmentName || '查看项目附件'}
+                            </a>
+                          )}
                         </article>
                       );
                     })}
@@ -752,6 +841,30 @@ export default function Profile({ userId }: { userId?: string }) {
                 placeholder="你做了什么、成果是什么？"
               />
             </label>
+            <div className="journey-upload">
+              <strong>项目附件（选填）</strong>
+              <label className="qr-upload-control">
+                <Upload size={16} />
+                {journey.attachmentUrl ? '更换附件' : '上传项目附件'}
+                <input
+                  className="file-input-hidden"
+                  type="file"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip"
+                  onChange={async (e) => {
+                    const input = e.currentTarget;
+                    await uploadJourneyAttachment(input.files?.[0]);
+                    input.value = '';
+                  }}
+                />
+              </label>
+              {journey.attachmentName && (
+                <span className="upload-file-name">
+                  <FileText size={15} /> {journey.attachmentName}
+                </span>
+              )}
+              <small>支持 PDF、Word、PPT、Excel、TXT、ZIP，最大 20MB。</small>
+            </div>
+            {error && <p role="alert">{error}</p>}
             <button className="primary" disabled={busy}>
               {busy ? '保存中…' : '保存经历'}
             </button>
