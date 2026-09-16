@@ -40,6 +40,16 @@ const blank = {
   wechat_qr_url: '',
   wechat_public: false,
 };
+type ProfileAttachment = {
+  id: string;
+  user_id: string;
+  file_name: string;
+  file_url: string;
+  file_path: string;
+  file_type: string | null;
+  file_size: number | null;
+  created_at: string;
+};
 function FollowList({ ids }: { ids: string[] }) {
   const [items, setItems] = useState<Record<string, PublicProfile>>({});
   useEffect(() => {
@@ -76,6 +86,7 @@ export default function Profile({ userId }: { userId?: string }) {
     own = !!id && user?.id === id;
   const [profile, setProfile] = useState<PublicProfile | null>(null),
     [posts, setPosts] = useState<Post[]>([]),
+    [attachments, setAttachments] = useState<ProfileAttachment[]>([]),
     [draft, setDraft] = useState(blank),
     [postDraft, setPostDraft] = useState(''),
     [journeyOpen, setJourneyOpen] = useState(false),
@@ -94,6 +105,7 @@ export default function Profile({ userId }: { userId?: string }) {
     [editing, setEditing] = useState(false),
     [loading, setLoading] = useState(true),
     [busy, setBusy] = useState(false),
+    [attachmentBusy, setAttachmentBusy] = useState(false),
     [error, setError] = useState(''),
     [notice, setNotice] = useState(''),
     [wechatOpen, setWechatOpen] = useState(false),
@@ -121,17 +133,33 @@ export default function Profile({ userId }: { userId?: string }) {
           .eq('user_id', id)
           .eq('status', 'published')
           .order('created_at', { ascending: false });
-        const [outgoing, incoming] = await Promise.all([
+        const [outgoing, incoming, attachmentResult] = await Promise.all([
           supabase.from('follows').select('*').eq('follower_id', id),
           supabase.from('follows').select('*').eq('following_id', id),
+          supabase
+            .from('profile_attachments')
+            .select('*')
+            .eq('user_id', id)
+            .order('created_at', { ascending: false }),
         ]);
-        if (result.error || outgoing.error || incoming.error)
-          throw result.error || outgoing.error || incoming.error;
+        if (
+          result.error ||
+          outgoing.error ||
+          incoming.error
+        )
+          throw (
+            result.error ||
+            outgoing.error ||
+            incoming.error
+          );
+        if (attachmentResult.error)
+          console.error('Profile attachments load failed', attachmentResult.error);
         if (alive) {
           setProfile(data);
           setPosts(result.data ?? []);
           setFollowing(outgoing.data ?? []);
           setFollowers(incoming.data ?? []);
+          setAttachments(attachmentResult.error ? [] : (attachmentResult.data ?? []));
         }
       } catch {
         if (alive) setError('主页暂时无法读取，或该用户尚未建立公开资料。');
@@ -165,6 +193,81 @@ export default function Profile({ userId }: { userId?: string }) {
     } catch (e) {
       console.error(e);
       setError('关注状态更新失败，请稍后重试。');
+    }
+  }
+  async function storeProfileAttachment(file?: File) {
+    if (!file || attachmentBusy) return null;
+    if (file.size > 20 * 1024 * 1024) {
+      setError('附件请控制在 20MB 以内。');
+      return null;
+    }
+    setAttachmentBusy(true);
+    setError('');
+    try {
+      const current = await requireUser();
+      if (!current || current.id !== id) return null;
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, '-');
+      const filePath = `${current.id}/${crypto.randomUUID()}-${safeName}`;
+      const upload = await supabase.storage
+        .from('profile-attachments')
+        .upload(filePath, file, {
+          upsert: false,
+          contentType: file.type || 'application/octet-stream',
+        });
+      if (upload.error) throw upload.error;
+      const fileUrl = supabase.storage
+        .from('profile-attachments')
+        .getPublicUrl(filePath).data.publicUrl;
+      const inserted = await supabase
+        .from('profile_attachments')
+        .insert({
+          user_id: current.id,
+          file_name: file.name,
+          file_url: fileUrl,
+          file_path: filePath,
+          file_type: file.type || null,
+          file_size: file.size,
+        })
+        .select()
+        .single();
+      if (inserted.error) {
+        await supabase.storage.from('profile-attachments').remove([filePath]);
+        throw inserted.error;
+      }
+      setAttachments((items) => [inserted.data, ...items]);
+      setNotice('附件已上传。');
+      return inserted.data as ProfileAttachment;
+    } catch (e) {
+      console.error('Profile attachment upload failed', e);
+      setError('附件上传失败，请稍后重试。');
+      return null;
+    } finally {
+      setAttachmentBusy(false);
+    }
+  }
+  async function deleteProfileAttachment(item: ProfileAttachment) {
+    const current = await requireUser();
+    if (!current || current.id !== id || item.user_id !== current.id) return;
+    setAttachmentBusy(true);
+    setError('');
+    try {
+      const storageResult = await supabase.storage
+        .from('profile-attachments')
+        .remove([item.file_path]);
+      if (storageResult.error) throw storageResult.error;
+      const databaseResult = await supabase
+        .from('profile_attachments')
+        .delete()
+        .eq('id', item.id)
+        .eq('user_id', current.id);
+      if (databaseResult.error) throw databaseResult.error;
+      setAttachments((items) => items.filter((entry) => entry.id !== item.id));
+      setNotice('附件已删除。');
+    } catch (e) {
+      console.error('Profile attachment delete failed', e);
+      setError('附件删除失败，请稍后重试。');
+    } finally {
+      setAttachmentBusy(false);
     }
   }
   const isFollowing =
@@ -303,17 +406,12 @@ export default function Profile({ userId }: { userId?: string }) {
     try {
       const current = await requireUser();
       if (!current || current.id !== id) return;
-      const path = `${current.id}/journey-${Date.now()}.${extension}`;
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(path, file, { upsert: true, contentType: file.type });
-      if (uploadError) throw uploadError;
-      const url = supabase.storage.from('avatars').getPublicUrl(path).data
-        .publicUrl;
+      const attachment = await storeProfileAttachment(file);
+      if (!attachment) return;
       setJourney((value) => ({
         ...value,
-        attachmentUrl: url,
-        attachmentName: file.name,
+        attachmentUrl: attachment.file_url,
+        attachmentName: attachment.file_name,
       }));
       setNotice('附件已上传，请保存经历。');
     } catch (e) {
@@ -669,6 +767,57 @@ export default function Profile({ userId }: { userId?: string }) {
                       </li>
                     )}
                   </ul>
+                </section>
+                <section className="community-panel profile-attachments">
+                  <div className="community-heading">
+                    <h2>作品 / 附件</h2>
+                    {own && (
+                      <label className="attachment-upload-button">
+                        <Upload size={15} />
+                        {attachmentBusy ? '上传中…' : '上传附件'}
+                        <input
+                          className="file-input-hidden"
+                          type="file"
+                          disabled={attachmentBusy}
+                          onChange={async (e) => {
+                            const input = e.currentTarget;
+                            await storeProfileAttachment(input.files?.[0]);
+                            input.value = '';
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
+                  <div className="attachment-list">
+                    {attachments.map((item) => (
+                      <div className="attachment-row" key={item.id}>
+                        <FileText size={17} />
+                        <a
+                          href={item.file_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={item.file_name}
+                        >
+                          {item.file_name}
+                        </a>
+                        {own && (
+                          <button
+                            type="button"
+                            disabled={attachmentBusy}
+                            onClick={() => {
+                              if (window.confirm('确定删除这个附件吗？'))
+                                deleteProfileAttachment(item);
+                            }}
+                          >
+                            删除
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    {!attachments.length && (
+                      <p className="attachment-empty">暂时还没有作品或附件。</p>
+                    )}
+                  </div>
                 </section>
                 <section className="community-panel">
                   <div className="community-heading">
