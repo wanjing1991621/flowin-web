@@ -38,3 +38,6 @@ next-env.d.ts
 /outputs/
 /work/
 /.pnpm-store/
+/.site-stage-*/
+*.tsbuildinfo
+*.tar.gz
