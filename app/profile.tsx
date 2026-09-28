@@ -20,6 +20,7 @@ import {
   skillList,
   profileUrl,
   profilesFor,
+  isHiddenTestUser,
   type PublicProfile,
   type Post,
 } from './supabase';
@@ -116,6 +117,16 @@ export default function Profile({ userId }: { userId?: string }) {
       setLoading(false);
       return;
     }
+    if (isHiddenTestUser(id)) {
+      setProfile(null);
+      setPosts([]);
+      setFollowing([]);
+      setFollowers([]);
+      setAttachments([]);
+      setError('该用户资料已移除。');
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError('');
     async function load() {
@@ -157,8 +168,8 @@ export default function Profile({ userId }: { userId?: string }) {
         if (alive) {
           setProfile(data);
           setPosts(result.data ?? []);
-          setFollowing(outgoing.data ?? []);
-          setFollowers(incoming.data ?? []);
+          setFollowing((outgoing.data ?? []).filter(f=>!isHiddenTestUser(f.following_id)));
+          setFollowers((incoming.data ?? []).filter(f=>!isHiddenTestUser(f.follower_id)));
           setAttachments(attachmentResult.error ? [] : (attachmentResult.data ?? []));
         }
       } catch {

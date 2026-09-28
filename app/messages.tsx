@@ -6,6 +6,7 @@ import {
   dateLabel,
   profileUrl,
   messagesUrl,
+  isHiddenTestUser,
   type PublicProfile,
 } from './supabase';
 import { Header, Author } from './social-ui';
@@ -56,7 +57,9 @@ export default function Messages({
           .or(`owner_id.eq.${user!.id},requester_id.eq.${user!.id}`)
           .order('created_at', { ascending: false });
         if (error) throw error;
-        const convs = (data ?? []) as Conversation[];
+        const convs = ((data ?? []) as Conversation[]).filter(
+          (c) => !isHiddenTestUser(c.owner_id) && !isHiddenTestUser(c.requester_id),
+        );
         const selected = conversationId
           ? convs.find((c) => c.id === conversationId)
           : null;
