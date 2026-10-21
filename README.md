@@ -37,6 +37,17 @@ FlowIn 仍在持续开发中，部分功能和技术方案可能会发生变化�
 
 欢迎通过 GitHub Issues 与我们交流，一起探索 AI 时代人与机会连接的新可能。
 
+# ❤️ 支持 FlowIn
+
+FlowIn还很小，为了帮到更多人，TA的成长需要更多人的支持。
+如果你认同 FlowIn 的理念，欢迎自愿支持项目的持续开发。
+
+感谢每一位关注、参与和支持 FlowIn 的伙伴！
+
+![支持 FlowIn：支付宝与微信]
+<img width="1080" height="1619" alt="支付宝 (1)" src="https://github.com/user-attachments/assets/814bd46f-ee0a-4f40-af31-8a48ed0839de" />
+<img width="1056" height="1437" alt="微信" src="https://github.com/user-attachments/assets/42318fd0-f3f8-4daa-9c8e-c0af299356f7" />
+
 ---
 
 **FlowIn — Find your flow.**
