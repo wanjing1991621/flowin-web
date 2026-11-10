@@ -130,3 +130,98 @@
 .event-create-dialog[data-slot=dialog-content]{top:max(16px,env(safe-area-inset-top));bottom:max(84px,env(safe-area-inset-bottom));max-height:none;transform:translateX(-50%);overflow-y:auto;overscroll-behavior:contain;padding-bottom:28px}.event-create-dialog .event-form>.primary{position:sticky;bottom:0;z-index:2;width:100%;min-height:48px;margin-top:4px;box-shadow:0 -12px 22px 14px #fff;background:#1959d8}
 
 .profile-attachments .community-heading{align-items:center}.attachment-upload-button{display:inline-flex;align-items:center;gap:5px;color:#1765ec;font-size:14px;cursor:pointer}.attachment-list{display:grid;gap:9px}.attachment-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px;border:1px solid #e1e9f7;border-radius:8px;background:#f8faff}.attachment-row>a{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#2858bc;font-size:13px}.attachment-row>button{padding:3px;color:#b42336;font-size:12px}.attachment-row>svg{color:#5576ae}.attachment-empty{margin:0!important;color:#7a88a2!important}.event-image-editor{display:grid;gap:8px}.event-image-editor>button{width:max-content;color:#b42336;font-size:13px;padding:4px 0}
+
+/* 关爱残障群体页：配色对齐首页蓝色系 */
+.care-hero{background:linear-gradient(105deg,#f9fcff 0%,#f5f9ff 46%,#edf3ff 100%);border-bottom:1px solid #e5ebf4}
+.care-hero-inner{padding:52px 0 46px}
+.care-kicker{display:inline-flex;align-items:center;gap:7px;background:#eaf1fd;border:1px solid #dfe8fa;color:#124dd3;font-size:13px;font-weight:600;padding:5px 13px;border-radius:20px}
+.care-hero h1{font-family:inherit;font-size:42px;font-weight:600;color:#06317d;line-height:1.35;margin:20px 0 14px;white-space:normal;letter-spacing:1px}
+.care-hero p{max-width:620px;font-size:15px;line-height:1.9;color:#627392;margin:0 0 24px}
+.care-section{padding:34px 0 6px}
+.care-friendly-pill{display:inline-flex;align-items:center;gap:4px;background:#eaf4ff;color:#2f6bb5;font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px}
+.care-type-tabs{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:20px}
+.care-type-tabs button{display:inline-flex;align-items:center;gap:7px;padding:9px 19px;border-radius:9px;background:#e9efff;color:#2f50a5;font-size:14px}
+.care-type-tabs button.active{background:#1765ec;color:#fff}
+.care-tips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.care-tip{display:flex;gap:13px;background:#fff;border:1px solid #e8edf7;border-radius:12px;padding:19px}
+.care-tip span{flex:none;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:#e9efff;color:#2f50a5;font-size:13px;font-weight:700}
+.care-tip p{margin:0;font-size:14px;line-height:1.8;color:#4d5f7d}
+.care-resources{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.care-resources>a{display:flex;align-items:flex-start;gap:13px;background:#fff;border:1px solid #e8edf7;border-radius:12px;padding:20px;color:inherit;transition:border-color .2s,box-shadow .2s}
+.care-resources>a:hover{border-color:#c4d6f8;box-shadow:0 10px 26px #19489210}
+.care-resources>a>svg{flex:none;color:#1765ec;margin-top:2px}
+.care-resources>a>div{flex:1;min-width:0}
+.care-resources strong{font-size:15px;color:#12356e}
+.care-resources p{font-size:13px;color:#6b7b96;line-height:1.75;margin:5px 0 0}
+.care-resource-go{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#2558aa;white-space:nowrap;margin-top:2px}
+.care-contact{display:flex;align-items:center;gap:14px;margin:14px 0 30px;padding:18px 24px;border:1px solid #dce7fa;border-radius:12px;background:#eef4ff}
+.care-contact>svg{flex:none;color:#1765ec}
+.care-contact p{flex:1;min-width:0;margin:0;font-size:14px;line-height:1.8;color:#3d5680}
+.care-contact a{flex:none;font-size:14px;font-weight:600;color:#1765ec;border:1px solid #bfd2f2;border-radius:20px;padding:7px 20px;background:#fff}
+.care-contact a:hover{background:#1765ec;color:#fff}
+@media(max-width:1000px){.care-tips,.care-resources{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.care-hero-inner{padding:38px 0 34px}.care-hero h1{font-size:31px}.care-tips,.care-resources{grid-template-columns:1fr}.care-contact{flex-wrap:wrap;gap:10px}.care-contact a{width:100%;text-align:center}}
+
+/* 关爱残障群体页 · AI 求职助手 */
+.care-agent-section{padding-top:30px}
+.care-agent{display:flex;gap:34px;background:#fff;border:1px solid #dfe8f6;border-radius:16px;padding:34px 38px;box-shadow:0 12px 35px #1948920a}
+.care-agent-main{flex:1;min-width:0}
+.care-agent-main h2{display:flex;align-items:center;gap:8px;font-size:22px;color:#0a326f;margin:0 0 8px}
+.care-agent-main h2>svg{color:#1765ec}
+.care-agent-intro{font-size:14px;color:#627392;line-height:1.8;margin:0 0 20px}
+.care-agent-form fieldset{border:0;padding:0;margin:0 0 18px}
+.care-agent-form legend{font-size:13px;color:#42557a;margin-bottom:10px;padding:0}
+.care-agent-chips{display:flex;gap:8px;flex-wrap:wrap}
+.care-agent-chips button{padding:6px 15px;border-radius:17px;background:#eff4ff;color:#49678f;font-size:13px;border:1px solid transparent}
+.care-agent-chips button.active{background:#1765ec;color:#fff}
+.care-agent-inputs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.care-agent-inputs label{display:grid;gap:7px;font-size:13px;color:#42557a}
+.care-agent-inputs input{width:100%;padding:11px 13px;border:1px solid #dbe3ef;border-radius:8px;background:#f9fbff;font:inherit;font-size:14px;color:#233b65}
+.care-agent-form>.primary{display:inline-flex;align-items:center;gap:8px}
+.care-agent-error{color:#b42318;font-size:13px;margin:0 0 12px}
+/* 小恣机器人 */
+.care-bot{flex:none;width:120px;align-self:flex-start;display:flex;flex-direction:column;align-items:center;padding-top:6px;animation:careFloat 3.2s ease-in-out infinite}
+.care-bot-head{position:relative;width:84px;height:64px;background:linear-gradient(150deg,#2c6ff0,#1248b5);border-radius:24px;display:flex;align-items:center;justify-content:center;gap:14px;overflow:hidden}
+.care-bot-antenna{position:absolute;top:-9px;left:50%;width:3px;height:11px;background:#1248b5;transform:translateX(-50%)}
+.care-bot-antenna:after{content:'';position:absolute;top:-6px;left:50%;width:9px;height:9px;border-radius:50%;background:#7fb0ff;transform:translateX(-50%);animation:careGlow 1.6s ease-in-out infinite}
+.care-bot-eye{width:13px;height:15px;border-radius:50%;background:#eaf3ff;animation:careBlink 4s infinite}
+.care-bot-scan{position:absolute;left:0;right:0;top:0;height:18px;background:linear-gradient(180deg,transparent,#9cc4ff66,transparent);animation:careScan 1.1s linear infinite}
+.care-bot-body{width:58px;height:34px;margin-top:7px;border-radius:14px;background:linear-gradient(150deg,#e9efff,#d3e1fb);display:grid;place-items:center;color:#1765ec}
+.care-bot-shadow{width:64px;height:9px;margin-top:10px;border-radius:50%;background:#0a2a6614;animation:careShadow 3.2s ease-in-out infinite}
+@keyframes careFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes careBlink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes careGlow{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes careScan{0%{top:-18px}100%{top:64px}}
+@keyframes careShadow{0%,100%{transform:scaleX(1);opacity:1}50%{transform:scaleX(.82);opacity:.7}}
+/* 搜索状态 */
+.care-agent-status{padding:26px 0 10px}
+.care-agent-step{font-size:16px;color:#12356e;font-weight:600;margin:0 0 16px}
+.care-dots{display:inline-flex;gap:3px;margin-left:4px}
+.care-dots i{width:5px;height:5px;border-radius:50%;background:#1765ec;animation:careDot 1.2s infinite}
+.care-dots i:nth-child(2){animation-delay:.2s}
+.care-dots i:nth-child(3){animation-delay:.4s}
+@keyframes careDot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.care-agent-bar{height:6px;border-radius:3px;background:#e9efff;overflow:hidden}
+.care-agent-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#2c6ff0,#1248b5);transition:width .6s ease}
+.care-agent-hint{font-size:12px;color:#8592a8;margin:12px 0 0}
+/* 匹配结果 */
+.care-agent-summary{font-size:15px;color:#33486c;line-height:1.8;margin:0 0 18px}
+.care-agent-summary strong{color:#1765ec;font-size:18px}
+.care-match{border:1px solid #e3eaf6;border-radius:12px;padding:16px 18px 12px;margin-bottom:12px;background:#fbfcff}
+.care-match-top{display:flex;gap:11px;align-items:flex-start}
+.care-match-top .job-icon{flex:none}
+.care-match-top>div{flex:1;min-width:0}
+.care-match h3{font-size:16px;margin:0;color:#082f70}
+.care-match-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#72809a;margin:6px 0 0}
+.care-match-meta span{display:inline-flex;align-items:center;gap:4px}
+.care-match-salary{flex:none;color:#1149b8;font-size:15px}
+.care-match-desc{font-size:13px;color:#526789;line-height:1.75;margin:10px 0 0}
+.care-match-reasons{display:flex;gap:6px;flex-wrap:wrap;margin:11px 0 0}
+.care-match-reasons span{font-size:12px;background:#e9efff;color:#2f50a5;border-radius:5px;padding:2px 8px}
+.care-match .source-bottom{margin-top:11px}
+.care-agent-again{display:flex;align-items:center;gap:20px;margin-top:16px}
+.care-agent-again .secondary{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;min-height:40px}
+.care-agent-link{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:#2558aa}
+@media(max-width:700px){.care-agent{flex-direction:column;gap:10px;padding:24px 20px}.care-bot{flex-direction:row;width:auto;gap:14px;align-items:center}.care-bot-head{width:64px;height:48px;border-radius:18px}.care-bot-eye{width:10px;height:12px}.care-bot-body{margin-top:0}.care-bot-shadow{display:none}.care-agent-inputs{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.care-bot,.care-bot-eye,.care-bot-antenna:after,.care-bot-scan,.care-bot-shadow,.care-dots i{animation:none}}
+output.care-agent-status,output.care-agent-summary{display:block}

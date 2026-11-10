@@ -7,7 +7,7 @@ const Context=createContext<AuthContextValue>(null!);
 export const useAuth=()=>useContext(Context);
 export function AuthProvider({children}:{children:React.ReactNode}){
  const [user,setUser]=useState<User|null>(null),[ready,setReady]=useState(false),[open,setOpen]=useState(false),[mode,setMode]=useState<'login'|'register'>('login'),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[name,setName]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
- useEffect(()=>{let alive=true;supabase.auth.getUser().then(({data})=>{if(alive){setUser(data.user);setReady(true)}});const {data}=supabase.auth.onAuthStateChange((_event,session)=>{setUser(session?.user??null);setReady(true)});return()=>{alive=false;data.subscription.unsubscribe()}},[]);
+ useEffect(()=>{let alive=true;supabase.auth.getUser().then(({data})=>{if(alive){setUser(data.user);setReady(true)}}).catch(()=>{if(alive)setReady(true)});const {data}=supabase.auth.onAuthStateChange((_event,session)=>{setUser(session?.user??null);setReady(true)});return()=>{alive=false;data.subscription.unsubscribe()}},[]);
  useEffect(()=>{if(user)ensureProfile(user).catch(()=>setError('个人资料暂时未能初始化，请稍后重新登录。'))},[user?.id]);
  function openAuth(next:'login'|'register'='login'){setMode(next);setError('');setMessage('');setOpen(true)}
  async function requireUser(){const {data:{user},error}=await supabase.auth.getUser();if(!user||error){openAuth();return null}return user}
